@@ -1,7 +1,5 @@
 const { test, expect } = require('@playwright/test');
 const ListPage = require('../tests/pages/listPage');
-const { verifyTitleCorrespondsToType } = require('../tests/helpers/helper');
-const transactionMapping = require('../tests/data/transactionMapping');
 
 
 test.describe('List Page Content', () => {
@@ -32,7 +30,7 @@ test.describe('List Page Content', () => {
     });
 
     test('Verify number of list items', async ({ page }) => {
-        const listPage = new ListPage(page);
+        //const listPage = new ListPage(page);
 
         // Step 2: Verify that the list renders 10 items initially
         await listPage.verifyInitialListItemCount(10);
@@ -58,13 +56,10 @@ test.describe('List Item Element Verification', () => {
         await listPage.verifyListItemsElements();
     });
 
-    test('Verify titles correspond to correct transaction types', async ({ page }) => {
-        // Selector for the list containing the transaction items
-        const listSelector = '.ActionsList_main__sMpx5';
-
-        // Verify that titles correspond to the correct types based on the mapping
-        await verifyTitleCorrespondsToType(page, listPage.selectors.list, transactionMapping);
+    test('Verify that titles correspond to the correct action types', async (page) => {
+        await listPage.verifyTitlesAndTypes();
     });
+
 
 });
 

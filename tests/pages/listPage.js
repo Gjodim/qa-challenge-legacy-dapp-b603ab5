@@ -1,5 +1,6 @@
 const { expect } = require('@playwright/test');
 const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType} = require('../helpers/helper');
+const transactionMapping = require('../data/transactionMapping');
 
 class ListPage {
     constructor(page) {
@@ -13,6 +14,7 @@ class ListPage {
             typeFilter: 'name="actionTypeFilter"',
             avatar: '.ActionsListItem_avatar__ASfBu', // Avatar selector
             title: '.ActionsListItem_title__Jp-yM', // Title selector
+            actionType: 'data-action-type', // Action type selector
             status: '.ActionsListItem_tagWrapper__OzXps', // Status (tag wrapper) selector
             date: '.ActionsListItem_day__zIi1u', // Date selector
             team: '.ActionsListItem_domain__OhVrH', // Team (domain) selector
@@ -93,6 +95,32 @@ class ListPage {
         const itemSelectors = { avatar, title, status, date, team };
         await verifyListItemElements(this.page, list, itemSelectors);
     }
+
+    async verifyTitlesAndTypes() {
+        const listItems = this.page.locator(`${this.selectors.list} li`);
+        const itemCount = await listItems.count();
+        console.log(`Item count is: ${itemCount.toString()}`)
+
+        for (let i = 0; i < itemCount; i++) {
+            const listItem = listItems.nth(i);
+
+            // Extract action type from the list item attribute
+            const actionType = await listItem.getAttribute(this.selectors.actionType);
+
+            // Extract the title text
+            const titleElement = listItem.locator(this.selectors.title);
+            const titleText = (await titleElement.allInnerTexts()).join(' ').trim();
+
+            // Clean up any extra spaces between words
+            const cleanedTitle = titleText.replace(/\s+/g, ' ');
+
+            // Call the helper function to verify the title corresponds to the action type
+            await verifyTitleCorrespondsToType(actionType, cleanedTitle, transactionMapping);
+
+
+        }
+    }
+
 }
 
 module.exports = ListPage;
