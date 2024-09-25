@@ -107,6 +107,11 @@ class ListPage {
             // Extract action type from the list item attribute
             const actionType = await listItem.getAttribute(this.selectors.actionType);
 
+            // Check if the action type is 'GENERIC'
+            if (actionType === 'GENERIC') {
+                throw new Error(`Found a list item with action type 'GENERIC' which should not exist.`);
+            }
+
             // Extract the title text
             const titleElement = listItem.locator(this.selectors.title);
             const titleText = (await titleElement.allInnerTexts()).join(' ').trim();
