@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements} = require('../helpers/helper');
+const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType} = require('../helpers/helper');
 
 class ListPage {
     constructor(page) {

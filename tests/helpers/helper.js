@@ -1,4 +1,6 @@
 // helper.js
+const transactionMapping = require('../data/transactionMapping');
+
 export async function checkElementVisibility(page, selector, text = null, attribute = null, timeout = 5000) {
     let element;
 
@@ -92,6 +94,42 @@ export async function verifyListItemElements(page, listSelector, itemSelectors) 
 
     console.log(`Verified: All elements (avatar, title, status, date, team) are present in each of the ${itemCount} list items.`);
 }
+
+// Function to check if the title corresponds to the correct type
+// helper.js
+export async function verifyTitleCorrespondsToType(page, listSelector, transactionMapping) {
+    const listItems = page.locator(`${listSelector} li`);
+    const itemCount = await listItems.count();
+
+    for (let i = 0; i < itemCount; i++) {
+        const listItem = listItems.nth(i);
+        const actionType = await listItem.getAttribute('data-action-type');
+        const titleElement = listItem.locator('.ActionsListItem_title__Jp-yM');
+
+        // Get the full text of the title
+        const titleText = (await titleElement.allInnerTexts()).join(' ').trim();
+
+        // Clean up any extra spaces between words
+        const cleanedTitle = titleText.replace(/\s+/g, ' ');
+
+        if (transactionMapping[actionType]) {
+            const expectedFormat = transactionMapping[actionType];
+
+            // Simple validation logic (this can be customized as needed)
+            const regex = new RegExp(expectedFormat.replace(/<.*?>/g, '.*'), 'i');
+            if (!regex.test(cleanedTitle)) {
+                throw new Error(`Title "${cleanedTitle}" does not match expected format for action type "${actionType}". Expected: ${expectedFormat}`);
+            }
+
+            // Log successful match
+            console.log(`Matched: Action type "${actionType}" with title "${cleanedTitle}".`);
+        } else {
+            throw new Error(`No transaction mapping found for action type "${actionType}".`);
+        }
+    }
+}
+
+
 
 
 
