@@ -34,7 +34,7 @@ export async function checkElementVisibility(page, selector, text = null, attrib
 // helper.js
 export async function verifyDropdownItemsByTitle(page, attribute, expectedTitles) {
     // Step 1: Locate the dropdown trigger button using an attribute like name
-    const dropdownTrigger = page.locator(`[${attribute}]`);
+    const dropdownTrigger = page.locator(`${attribute}`);
 
     // Step 2: Click the button to trigger the dropdown list
     await dropdownTrigger.waitFor({ state: 'visible' });

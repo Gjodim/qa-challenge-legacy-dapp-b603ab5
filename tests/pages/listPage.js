@@ -9,9 +9,9 @@ class ListPage {
             list: '.ActionsList_main__sMpx5',
             listItems: '.ActionsListItem_main__79wRQ',
             loadMoreButton: '.LoadMoreButton_loadMoreButton__nQLWX',
-            teamFilter: 'name="filteredDomainId"',
-            sortFilter: 'name="sortFilter"',
-            typeFilter: 'name="actionTypeFilter"',
+            teamFilter: 'button[name="filteredDomainId"]',
+            sortFilter: 'button[name="sortFilter"]',
+            typeFilter: 'button[name="actionTypeFilter"]',
             avatar: '.ActionsListItem_avatar__ASfBu', // Avatar selector
             title: '.ActionsListItem_title__Jp-yM', // Title selector
             actionType: 'data-action-type', // Action type selector
@@ -40,9 +40,9 @@ class ListPage {
         await checkElementVisibility(this.page, this.selectors.loadMoreButton);
 
         // Use the 'name' attribute to locate the filter dropdown
-        await checkElementVisibility(this.page, null, null, this.selectors.teamFilter);
-        await checkElementVisibility(this.page, null, null, this.selectors.sortFilter);
-        await checkElementVisibility(this.page, null, null, this.selectors.typeFilter);
+        await checkElementVisibility(this.page, this.selectors.teamFilter,null, null);
+        await checkElementVisibility(this.page, this.selectors.sortFilter, null, null, );
+        await checkElementVisibility(this.page, this.selectors.typeFilter, null, null, );
 
         // Check if the list items exist
         const listItems = await this.page.$$(this.selectors.listItems);
