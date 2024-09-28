@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType} = require('../helpers/helper');
+const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, getItemCount} = require('../helpers/helper');
 const transactionMapping = require('../data/transactionMapping');
 
 class ListPage {
@@ -8,7 +8,7 @@ class ListPage {
         this.selectors = {
             list: '.ActionsList_main__sMpx5',
             listItems: '.ActionsListItem_main__79wRQ',
-            loadMoreButton: '.LoadMoreButton_loadMoreButton__nQLWX',
+            loadMoreButton: 'button:has-text("Load More")',
             teamFilter: 'button[name="filteredDomainId"]',
             sortFilter: 'button[name="sortFilter"]',
             typeFilter: 'button[name="actionTypeFilter"]',
@@ -125,6 +125,20 @@ class ListPage {
 
         }
     }
+
+    // Get current count of list items
+    async getItemCount() {
+        const count = await countListItems(this.page, this.selectors.list);
+        console.log(`Item count: ${count}`);
+        return count;
+    }
+
+    // Click "Load More" until button disappears, counting items along the way
+    async clickLoadMoreUntilHidden() {
+        await clickLoadMoreUntilNotPresent(this.page, this.selectors.loadMoreButton, this.selectors.list);
+    }
+
+
 
 }
 

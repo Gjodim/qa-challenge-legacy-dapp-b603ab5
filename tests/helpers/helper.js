@@ -114,6 +114,40 @@ export async function verifyTitleCorrespondsToType(actionType, cleanedTitle, tra
     }
 }
 
+// Helper to click "Load More" button until it's no longer visible and count items after each click
+export async function clickLoadMoreUntilNotPresent(page, buttonSelector, listSelector) {
+    let previousItemCount = await page.locator(`${listSelector} li`).count();
+
+    // Loop while the "Load More" button is visible
+    while (await page.locator(buttonSelector).isVisible()) {
+        console.log(`Previous item count: ${previousItemCount}`);
+
+        // Click the "Load More" button
+        await page.locator(buttonSelector).click();
+
+        // Wait for more items to load (you can adjust the timeout if necessary)
+        //await page.waitForTimeout(2000); // This is to give time for new items to load
+
+        // Get the new item count
+        let newItemCount = await page.locator(`${listSelector} li`).count();
+        console.log(`New item count: ${newItemCount}`);
+
+        // Ensure new items have been loaded
+        if (newItemCount <= previousItemCount) {
+            throw new Error('No new items loaded after clicking "Load More".');
+        }
+
+        // Update the previous item count to the current one
+        previousItemCount = newItemCount;
+
+        // Check if the button is still visible
+        if (!(await page.locator(buttonSelector).isVisible())) {
+            console.log('"Load More" button is no longer visible.');
+            break;
+        }
+    }
+}
+
 
 
 
