@@ -148,6 +148,82 @@ export async function clickLoadMoreUntilNotPresent(page, buttonSelector, listSel
     }
 }
 
+export async function selectSortOption(page, sortSelector, optionText) {
+    // Click the sort filter button
+    await page.click(sortSelector);
+
+    // Select the option based on the provided text
+    const optionLocator = `li[role="option"]:has-text("${optionText}")`;
+    await optionLocator.waitFor(); // Wait for the option to be visible
+    await optionLocator.hover(); // Hover over the element to ensure it’s focused
+    await optionLocator.click({ force: true }); // Force the click, even if Playwright thinks it's not ready
+    //await page.click(optionLocator);
+}
+
+
+// Helper to sort and verify date ordering (ascending/descending)
+export async function verifyDaysSorting(page, daysSelector, order = 'asc') {
+    const daysText = await page.$$eval(daysSelector, elements => {
+        return elements.map(el => {
+            const text = el.textContent.trim();
+            // Extract the number of days from the "X days ago" format
+            const match = text.match(/(\d+) days ago/);
+            return match ? parseInt(match[1], 10) : null;
+        }).filter(Boolean); // Filter out any null values
+    });
+
+    console.log('Parsed days:', daysText);
+
+    // Create an array of dates based on the days ago values
+    const dates = daysText.map(days => {
+        const date = new Date();
+        date.setDate(date.getDate() - days); // Subtract days from today
+        return date;
+    });
+
+    const isSorted = order === 'asc'
+        ? dates.every((date, i) => i === 0 || date >= dates[i - 1])
+        : dates.every((date, i) => i === 0 || date <= dates[i - 1]);
+
+    if (!isSorted) {
+        throw new Error(`Days are not sorted in ${order} order.`);
+    }
+
+    return true;
+}
+
+
+export function parseDaysAgo(daysAgoText) {
+    const match = daysAgoText.match(/(\d+) days ago/);
+    return match ? parseInt(match[1], 10) : 0; // Parse the number of days
+}
+
+
+// Helper to filter by team and check results
+export async function verifyTeamFilter(page, teamSelector, expectedTeam) {
+    const teams = await page.$$eval(teamSelector, elements => elements.map(el => el.textContent.trim()));
+
+    // Verify all items belong to the expected team
+    if (!teams.every(team => team === expectedTeam)) {
+        console.log(`These are teams: ${teams}`)
+        throw new Error(`Not all items belong to the expected team: ${expectedTeam}`);
+    }
+
+    return true;
+}
+
+// Helper to filter by type and check results using transaction mapping
+export async function verifyTypeFilter(page, typeSelector, expectedType, transactionMapping) {
+    const items = await page.$$(typeSelector);
+
+    for (const item of items) {
+        const text = await item.textContent();
+        const cleanedTitle = text.trim();
+        await verifyTitleCorrespondsToType(expectedType, cleanedTitle, transactionMapping);
+    }
+}
+
+
 
 
 

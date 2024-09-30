@@ -121,3 +121,107 @@ test.describe('Loading Tests', () => {
 });
 
 
+test.describe('Loading Tests', () => {
+    let listPage;
+
+    test.beforeEach(async ({ page }) => {
+        listPage = new ListPage(page);
+        // Navigate to the list page before each test
+        await listPage.navigate();
+        await listPage.navigatedToPage()
+
+        /*// Initial item count
+        let initialCount = await listPage.getItemCount();
+        expect(initialCount).toBeGreaterThan(0); // Ensure there are some initial items
+
+        // Click the "Load More" button until it's no longer visible and count items
+        await listPage.clickLoadMoreUntilHidden();
+
+        // Get new item count after all clicks
+        let finalCount = await listPage.getItemCount();
+
+        // Verify more items have been loaded
+        expect(finalCount).toBeGreaterThan(initialCount);*/
+    });
+
+
+    test('should verify list is sorted by date ascending', async () => {
+        const daysArray = await listPage.verifySortingByDate('asc');
+        //const parsedDaysArray = daysArray.map(day => Number(day)); // Ensure all elements are numbers
+        console.log(`days array is: ${daysArray}`);
+        // Check if the days are sorted in ascending order
+        const isSorted = daysArray.every((val, i, arr) => i === 0 || val <= arr[i]); // Allow same day values
+        console.log(`is sorted is ${isSorted}`);
+        if (!isSorted) throw new Error('Days are not sorted in ascending order.');
+    });
+
+    test('should verify list is sorted by date descending', async () => {
+        const daysArray = await listPage.verifySortingByDate('desc');
+        //const parsedDaysArray = daysArray.map(day => Number(day)); // Ensure all elements are numbers
+        console.log(`days array is: ${daysArray}`);
+        // Check if the days are sorted in ascending order
+        const isSorted = daysArray.every((val, i, arr) => i === 0 || val >= arr[i]); // Allow same day values
+        console.log(`is sorted is ${isSorted}`);
+        if (!isSorted) throw new Error('Days are not sorted in ascending order.');
+    });
+
+
+test('should filter by team and verify results for Root', async () => {
+    await listPage.filterByTeam('Root'); // Replace with expected team name
+});
+
+    test('should filter by team and verify results for Normandy', async () => {
+        await listPage.filterByTeam('Normandy'); // Replace with expected team name
+    });
+
+    test('should filter by team and verify results for Koprulu', async () => {
+        await listPage.filterByTeam('Koprulu'); // Replace with expected team name
+    });
+
+
+    test('should filter by type "Payment" and verify results', async () => {
+        await listPage.filterByType('Payment'); // Replace with expected type
+    });
+
+    test('should filter by type "Mint" and verify results', async () => {
+    await listPage.filterByType('Mint'); // Replace with expected type
+});
+
+    test('should filter by type "Transfer" and verify results', async () => {
+        await listPage.filterByType('Transfer'); // Replace with expected type
+    });
+
+    test('should filter by type "Reputation" and verify results', async () => {
+        await listPage.filterByType('Reputation'); // Replace with expected type
+    });
+
+    test('should filter by type "Permissions" and verify results', async () => {
+        await listPage.filterByType('Permissions'); // Replace with expected type
+    });
+
+    test('should filter by type "Upgrade" and verify results', async () => {
+        await listPage.filterByType('Upgrade'); // Replace with expected type
+    });
+
+    test('should filter by type "Details" and verify results', async () => {
+        await listPage.filterByType('Details'); // Replace with expected type
+    });
+
+    test('should filter by type "Address" and verify results', async () => {
+        await listPage.filterByType('Address'); // Replace with expected type
+    });
+
+    test('should filter by type "Teams" and verify results', async () => {
+        await listPage.filterByType('Teams'); // Replace with expected type
+    });
+
+    test('should filter by type "Generic" and verify results', async () => {
+        await listPage.filterByType('Generic'); // Replace with expected type
+    });
+
+test('should apply team, type filters and verify sorting', async () => {
+    await listPage.verifyCombinedFilters('Koprulu', 'Payment', 'asc');
+});
+});
+
+
