@@ -219,10 +219,15 @@ test('should filter by team and verify results for Root', async () => {
         await listPage.filterByType('Generic'); // Replace with expected type
     });
 
-test('should apply team, type filters and verify sorting', async () => {
+test('should apply team "Koprulu", type filter "Payment" and verify sorting ascending', async () => {
     //i've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters
     await listPage.verifyCombinedFilters('Koprulu', 'Payment', 'asc');
 });
+
+    test('should apply team "Root", type filter "Reputation" and verify sorting descending', async () => {
+        //i've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters
+        await listPage.verifyCombinedFilters('Root', 'Reputation', 'desc');
+    });
 });
 
 

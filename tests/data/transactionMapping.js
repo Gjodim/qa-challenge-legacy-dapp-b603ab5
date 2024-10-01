@@ -7,6 +7,6 @@ module.exports = {
     UPGRADE: 'Upgrade to version <version>',
     DETAILS: 'Details changed',
     ADDRESS: 'Address book was updated',
-    TEAM: 'New team: <team>',
+    TEAMS: 'New team: <team>',
     GENERIC: 'Generic Action'
 };
