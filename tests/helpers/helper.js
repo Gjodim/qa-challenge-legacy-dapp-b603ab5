@@ -97,20 +97,21 @@ export async function verifyListItemElements(page, listSelector, itemSelectors) 
 
 // Function to check if the title corresponds to the correct type
 export async function verifyTitleCorrespondsToType(actionType, cleanedTitle, transactionMapping) {
+    const normalizedActionType = actionType.toUpperCase(); // Normalize to uppercase
 
-    if (transactionMapping[actionType]) {
-        const expectedFormat = transactionMapping[actionType];
+    if (transactionMapping[normalizedActionType]) {
+        const expectedFormat = transactionMapping[normalizedActionType];
 
         // Simple validation logic (this can be customized as needed)
         const regex = new RegExp(expectedFormat.replace(/<.*?>/g, '.*'), 'i');
         if (!regex.test(cleanedTitle)) {
-            throw new Error(`Title "${cleanedTitle}" does not match expected format for action type "${actionType}". Expected: ${expectedFormat}`);
+            throw new Error(`Title "${cleanedTitle}" does not match expected format for action type "${normalizedActionType}". Expected: ${expectedFormat}`);
         }
 
         // Log successful match
-        console.log(`Matched: Action type "${actionType}" with title "${cleanedTitle}".`);
+        console.log(`Matched: Action type "${normalizedActionType}" with title "${cleanedTitle}".`);
     } else {
-        throw new Error(`No transaction mapping found for action type "${actionType}".`);
+        throw new Error(`No transaction mapping found for action type "${normalizedActionType}".`);
     }
 }
 
@@ -208,20 +209,31 @@ export async function verifyTeamFilter(page, teamSelector, expectedTeam) {
         console.log(`These are teams: ${teams}`)
         throw new Error(`Not all items belong to the expected team: ${expectedTeam}`);
     }
-
+    console.log(`teams in list are: ${teams} and expected team is: ${expectedTeam}`)
     return true;
 }
 
 // Helper to filter by type and check results using transaction mapping
 export async function verifyTypeFilter(page, typeSelector, expectedType, transactionMapping) {
+    // Fetch all list items
     const items = await page.$$(typeSelector);
 
-    for (const item of items) {
+    // Log the number of items found
+    console.log(`Found ${items.length} result(s) for type: "${expectedType}".`);
+
+    for (const [index, item] of items.entries()) {
+        // Get the text content (or HTML) of the list item
         const text = await item.textContent();
         const cleanedTitle = text.trim();
+
+        // Log the index and the text content of the item
+        console.log(`Item ${index + 1}: ${cleanedTitle}`);
+
+        // Verify the title matches the expected transaction mapping
         await verifyTitleCorrespondsToType(expectedType, cleanedTitle, transactionMapping);
     }
 }
+
 
 
 

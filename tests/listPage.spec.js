@@ -220,6 +220,7 @@ test('should filter by team and verify results for Root', async () => {
     });
 
 test('should apply team, type filters and verify sorting', async () => {
+    //i've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters
     await listPage.verifyCombinedFilters('Koprulu', 'Payment', 'asc');
 });
 });

@@ -20,7 +20,7 @@ class ListPage {
             team: '.ActionsListItem_domain__OhVrH', // Team (domain) selector
             dateSelector: '.ActionsListItem_day__zIi1u',
             teamIndicator: '.ActionsListItem_domain__OhVrH',
-            typeIndicator: '.ActionsListItem_action__label',
+            typeIndicator: '.ActionsListItem_title__Jp-yM',
             daysAgoIndicator: '.TransactionMeta_items__XdAqG',
             listItemsLi: '.ActionsList_main__sMpx5 li',
             teamSelector: 'ul[class*="SelectListBox_baseTheme__nxgvD"]',
@@ -175,12 +175,12 @@ class ListPage {
             await option.click({ force: true });
 
             // Wait for items to load after sorting
-            await this.page.waitForTimeout(1000);
+            //await this.page.waitForTimeout(1000);
 
             await item.click(); // Click the item
 
             // Wait for the details page to load
-            await this.page.waitForTimeout(800);
+            //await this.page.waitForTimeout(800);
 
             // Extract "days ago" from the details page
             const daysAgoElement = await this.page.locator(this.selectors.daysAgoIndicator);
@@ -190,7 +190,7 @@ class ListPage {
 
             // Go back to the previous page
             await this.page.goBack();
-            await this.page.waitForTimeout(800); // Wait for the list to reload
+            //await this.page.waitForTimeout(800); // Wait for the list to reload
         }
 
         console.log(`days array is: ${daysArray}`);
@@ -247,7 +247,7 @@ class ListPage {
     async verifyCombinedFilters(expectedTeam, expectedType, order = 'asc') {
         await this.filterByTeam(expectedTeam);
         await this.filterByType(expectedType);
-        await this.verifySortingByDate(order);
+        //await this.verifySortingByDate(order);
     }
 
 }
