@@ -30,6 +30,29 @@ export async function checkElementVisibility(page, selector, text = null, attrib
     return true;
 }
 
+export async function checkElementInvisibility(page, selector, text = null, attribute = null, timeout = 5000) {
+    let element;
+
+    if (attribute) {
+        element = page.locator(`[${attribute}]`);
+    } else if (text) {
+        element = page.locator(`${selector}:has-text("${text}")`);
+    } else {
+        element = page.locator(selector);
+    }
+
+    // Wait for the element to be hidden within the timeout
+    await element.waitFor({ state: 'hidden', timeout });
+
+    const isVisible = await element.isVisible();
+    if (isVisible) {
+        throw new Error(`Element is still visible: ${selector}`);
+    }
+
+    return true;
+}
+
+
 
 // helper.js
 export async function verifyDropdownItemsByTitle(page, attribute, expectedTitles) {
@@ -233,6 +256,81 @@ export async function verifyTypeFilter(page, typeSelector, expectedType, transac
         await verifyTitleCorrespondsToType(expectedType, cleanedTitle, transactionMapping);
     }
 }
+
+// Helper to check visibility and interaction of popover
+export async function togglePopover(page, selector) {
+    await checkElementVisibility(page, selector, null, null);
+    await page.click(selector);  // Toggle the popover
+}
+
+// Helper to verify popover user information
+export async function verifyPopoverUserInfo(page, popoverElementSelector, popoverAvatarSelector, userNameSelector, addressSelector, expectedAvatarTitle, expectedUserName, expectedAddress) {
+    // Check visibility of popover avatar
+    const popoverElement = await checkElementVisibility(page, popoverElementSelector, null, null);
+
+    // Retrieve the avatar title from the popover avatar element
+    const popoverAvatarTitle = await page.locator(popoverAvatarSelector).getAttribute('title');
+
+    // Retrieve user name and address from the popover
+    const userName = (await page.textContent(userNameSelector)).trim();
+    const address = (await page.textContent(addressSelector)).trim();
+
+    // Log the comparison of avatar, user name, and address
+    console.log(`Comparing List Item vs Popover:
+      Avatar: in list item = ${expectedAvatarTitle} vs in popover = ${popoverAvatarTitle}
+      User Name: in list item = @${expectedUserName} vs in popover = ${userName}
+      Address: in list item = ${expectedAddress} vs in popover = ${address}`);
+
+    // Verify avatar
+    if (!popoverElement) throw new Error('Avatar not visible in popover');
+    if (popoverAvatarTitle !== expectedAvatarTitle) throw new Error(`Expected avatar title to be ${expectedAvatarTitle}, but found ${popoverAvatarTitle}`);
+
+    // Verify user name
+    if (userName !== `@${expectedUserName}`) throw new Error(`Expected user name to be @${expectedUserName}, but found ${userName}`);
+
+    // Verify address
+    if (address !== expectedAddress) throw new Error(`Expected address to be ${expectedAddress}, but found ${address}`);
+
+    console.log(`Verified popover info: Avatar ${popoverAvatarTitle}, User ${userName}, Address ${address}`);
+}
+
+
+
+
+// Helper to verify avatar size in popover
+export async function verifyAvatarSize(page, avatarSelector, expectedWidth, expectedHeight) {
+    const avatarSize = await page.evaluate((selector) => {
+        const element = document.querySelector(selector);
+        return { width: element.clientWidth, height: element.clientHeight };
+    }, avatarSelector);
+
+    if (avatarSize.width !== expectedWidth || avatarSize.height !== expectedHeight) {
+        throw new Error(`Expected avatar size to be ${expectedWidth}x${expectedHeight}px, but found ${avatarSize.width}x${avatarSize.height}px`);
+    }
+    console.log(`Verified avatar size: ${avatarSize.width}x${avatarSize.height}`);
+}
+
+// Helper to verify CSS properties of user name
+export async function verifyUserNameCss(page, userNameSelector) {
+    const fontWeight = await page.evaluate((selector) => {
+        return window.getComputedStyle(document.querySelector(selector)).fontWeight;
+    }, userNameSelector);
+
+    const fontSize = await page.evaluate((selector) => {
+        return window.getComputedStyle(document.querySelector(selector)).fontSize;
+    }, userNameSelector);
+
+    const color = await page.evaluate((selector) => {
+        return window.getComputedStyle(document.querySelector(selector)).color;
+    }, userNameSelector);
+
+    if (fontWeight !== '700' || fontSize !== '13px' || color !== 'rgb(254, 94, 124)') {
+        throw new Error(`Expected user name font weight 700, font size 13px, color rgb(254, 94, 124), but found ${fontWeight}, ${fontSize}, ${color}`);
+    }
+
+    console.log(`Verified user name CSS: font-weight ${fontWeight}, font-size ${fontSize}, color ${color}`);
+}
+
 
 
 

@@ -231,3 +231,58 @@ test('should apply team "Koprulu", type filter "Payment" and verify sorting asce
 });
 
 
+
+test.describe('Popover Tests', () => {
+    let listPage;
+
+    test.beforeEach(async ({ page }) => {
+        listPage = new ListPage(page);
+        // Navigate to the list page before each test
+        await listPage.navigate();
+        await listPage.navigatedToPage()
+    });
+
+    test('Popover opens for all items', async () => {
+        for (let i = 0; i < 10; i++) {
+            await listPage.openPopover(i);
+            await listPage.navigate();
+            await listPage.navigatedToPage();
+        }
+    });
+
+    test('Popover closes for all items', async () => {
+        for (let i = 0; i < 10; i++) {
+            await listPage.closePopover(i);
+        }
+    });
+
+    test('Verify user information in popover for all items', async () => {
+        const numberOfItems = 10;  // Assuming 10 items to verify
+
+        for (let i = 0; i < numberOfItems; i++) {
+            await listPage.openPopover(i);
+            await listPage.verifyPopoverUserInfo(i);  // Automatically retrieves user info from the list item
+            await listPage.navigate();
+            await listPage.navigatedToPage();
+        }
+    });
+
+
+    test('Verify avatar size for all items', async () => {
+        for (let i = 0; i < 10; i++) {
+            await listPage.openPopover(i);
+            await listPage.verifyAvatarSize(i);
+            await listPage.closePopover(i);
+        }
+    });
+
+    test('Verify user name CSS properties for all items', async () => {
+        for (let i = 0; i < 10; i++) {
+            await listPage.openPopover(i);
+            await listPage.verifyUserNameCss(i);
+            await listPage.closePopover(i);
+        }
+    });
+
+});
+

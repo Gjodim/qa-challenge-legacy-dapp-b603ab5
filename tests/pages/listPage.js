@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, verifyDateSorting, verifyTeamFilter, verifyTypeFilter, selectSortOption, verifyDaysSorting} = require('../helpers/helper');
+const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, verifyDateSorting, verifyTeamFilter, verifyTypeFilter, selectSortOption, verifyDaysSorting, togglePopover, verifyPopoverUserInfo, verifyAvatarSize, verifyUserNameCss, checkElementInvisibility} = require('../helpers/helper');
 const transactionMapping = require('../data/transactionMapping');
 
 class ListPage {
@@ -25,6 +25,13 @@ class ListPage {
             listItemsLi: '.ActionsList_main__sMpx5 li',
             teamSelector: 'ul[class*="SelectListBox_baseTheme__nxgvD"]',
             typeSelector: 'ul[class*="SelectListBox_themeAlt__YLxZd"]',
+            avatarInList: 'div[aria-describedby="TwBVsqWj3a-m0TXl145Yh"]',
+            popoverElement: '.InfoPopover_section__E0nuB',
+            popoverAvatar: '.InfoPopover_container__xTkDS figure.Avatar_main__PsBO0',
+            popoverUserName: '.InfoPopover_userName__pul-M span',
+            popoverAddress: '.InfoPopover_address__Rn9NS',
+            totalFunds: '.TotalFunds_selectedTokenAmount__NZwsa',
+            listItemAvatar: '.Avatar_s__j\\+8wW',
         };
     }
 
@@ -248,6 +255,58 @@ class ListPage {
         await this.filterByTeam(expectedTeam);
         await this.filterByType(expectedType);
         //await this.verifySortingByDate(order);
+    }
+
+    // Open the popover for an item
+    async openPopover(index) {
+        const listItem = this.page.locator(this.selectors.listItems).nth(index);
+        const avatar = listItem.locator(this.selectors.avatar);
+        await avatar.click()
+        await togglePopover(this.page, this.selectors.popoverElement);
+    }
+
+    // Close the popover
+    async closePopover(index) {
+        const listItem = this.page.locator(this.selectors.listItems).nth(index);
+        const avatar = listItem.locator(this.selectors.avatar);
+        await avatar.click()
+        await togglePopover(this.page, this.selectors.popoverElement);
+        await this.page.locator(this.selectors.totalFunds).click()
+        await checkElementInvisibility(this.page, this.selectors.popoverElement);
+    }
+
+    // Verify user information in the popover
+    async verifyPopoverUserInfo(index) {
+        const listItem = this.page.locator(this.selectors.listItems).nth(index);
+
+        // Extracting avatar, userName, and address from list item
+        const avatar = await listItem.locator(this.selectors.listItemAvatar).nth(0).getAttribute('title');
+        const userName = await listItem.locator(this.selectors.listItemAvatar).nth(0).getAttribute('data-username');
+        const address = await listItem.locator(this.selectors.listItemAvatar).nth(0).getAttribute('data-wallet-address');
+
+        // Locators for popover's content
+        const popoverElement = this.selectors.popoverElement;
+        const popoverAvatar = this.selectors.popoverAvatar;
+        const popoverUserName = this.selectors.popoverUserName;
+        const popoverAddress = this.selectors.popoverAddress;
+
+        // Verifying the popover reflects the user details from the list item
+        await verifyPopoverUserInfo(this.page, popoverElement, popoverAvatar, popoverUserName, popoverAddress, avatar, userName, address);
+    }
+
+
+    // Verify avatar size
+    async verifyAvatarSize(index) {
+        const listItem = this.page.locator(this.selectors.listItems).nth(index);
+        const popoverAvatar = listItem.locator(this.selectors.popoverElement);
+        await verifyAvatarSize(this.page, popoverAvatar, 42, 42);
+    }
+
+    // Verify user name CSS properties
+    async verifyUserNameCss(index) {
+        const listItem = this.page.locator(this.selectors.listItems).nth(index);
+        const popoverUserName = listItem.locator(this.selectors.popoverUserName);
+        await verifyUserNameCss(this.page, popoverUserName);
     }
 
 }
