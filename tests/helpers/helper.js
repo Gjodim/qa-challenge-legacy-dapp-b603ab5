@@ -299,37 +299,51 @@ export async function verifyPopoverUserInfo(page, popoverElementSelector, popove
 
 // Helper to verify avatar size in popover
 export async function verifyAvatarSize(page, avatarSelector, expectedWidth, expectedHeight) {
+    // Evaluate the size of the avatar by the provided selector
     const avatarSize = await page.evaluate((selector) => {
         const element = document.querySelector(selector);
+        if (!element) {
+            throw new Error(`Avatar element with selector ${selector} not found`);
+        }
         return { width: element.clientWidth, height: element.clientHeight };
     }, avatarSelector);
 
+    // Check if the avatar's size matches the expected dimensions
     if (avatarSize.width !== expectedWidth || avatarSize.height !== expectedHeight) {
         throw new Error(`Expected avatar size to be ${expectedWidth}x${expectedHeight}px, but found ${avatarSize.width}x${avatarSize.height}px`);
     }
+
+    // Log the verified size of the avatar
     console.log(`Verified avatar size: ${avatarSize.width}x${avatarSize.height}`);
 }
 
+
 // Helper to verify CSS properties of user name
-export async function verifyUserNameCss(page, userNameSelector) {
-    const fontWeight = await page.evaluate((selector) => {
-        return window.getComputedStyle(document.querySelector(selector)).fontWeight;
-    }, userNameSelector);
+export async function verifyUserNameCss(userNameLocator) {
+    // Evaluate the font weight of the user name
+    const fontWeight = await userNameLocator.evaluate((element) => {
+        return window.getComputedStyle(element).fontWeight;
+    });
 
-    const fontSize = await page.evaluate((selector) => {
-        return window.getComputedStyle(document.querySelector(selector)).fontSize;
-    }, userNameSelector);
+    // Evaluate the font size of the user name
+    const fontSize = await userNameLocator.evaluate((element) => {
+        return window.getComputedStyle(element).fontSize;
+    });
 
-    const color = await page.evaluate((selector) => {
-        return window.getComputedStyle(document.querySelector(selector)).color;
-    }, userNameSelector);
+    // Evaluate the color of the user name
+    const color = await userNameLocator.evaluate((element) => {
+        return window.getComputedStyle(element).color;
+    });
 
+    // Validate the CSS properties against the expected values
     if (fontWeight !== '700' || fontSize !== '13px' || color !== 'rgb(254, 94, 124)') {
         throw new Error(`Expected user name font weight 700, font size 13px, color rgb(254, 94, 124), but found ${fontWeight}, ${fontSize}, ${color}`);
     }
 
+    // Log the verified values
     console.log(`Verified user name CSS: font-weight ${fontWeight}, font-size ${fontSize}, color ${color}`);
 }
+
 
 
 

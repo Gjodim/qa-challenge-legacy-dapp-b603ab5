@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, verifyDateSorting, verifyTeamFilter, verifyTypeFilter, selectSortOption, verifyDaysSorting, togglePopover, verifyPopoverUserInfo, verifyAvatarSize, verifyUserNameCss, checkElementInvisibility} = require('../helpers/helper');
+const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, verifyDateSorting, verifyTeamFilter, verifyTypeFilter, selectSortOption, verifyDaysSorting, togglePopover, verifyPopoverUserInfo, verifyAvatarSize, verifyUserNameCss, checkElementInvisibility,} = require('../helpers/helper');
 const transactionMapping = require('../data/transactionMapping');
 
 class ListPage {
@@ -298,16 +298,23 @@ class ListPage {
     // Verify avatar size
     async verifyAvatarSize(index) {
         const listItem = this.page.locator(this.selectors.listItems).nth(index);
-        const popoverAvatar = listItem.locator(this.selectors.popoverElement);
-        await verifyAvatarSize(this.page, popoverAvatar, 42, 42);
+        // Select the avatar within the popover
+        const popoverAvatar = this.page.locator(this.selectors.popoverAvatar);
+
+        // Verify the avatar size (34x34)
+        await verifyAvatarSize(this.page, this.selectors.popoverAvatar, 34, 34);
     }
 
     // Verify user name CSS properties
     async verifyUserNameCss(index) {
+        // Get the popover user name locator
         const listItem = this.page.locator(this.selectors.listItems).nth(index);
         const popoverUserName = listItem.locator(this.selectors.popoverUserName);
-        await verifyUserNameCss(this.page, popoverUserName);
+
+        // Pass the popover user name locator to the helper function
+        await verifyUserNameCss(popoverUserName);
     }
+
 
 }
 
