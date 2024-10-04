@@ -1,10 +1,10 @@
-const { test, expect } = require('@playwright/test');
+const {test, expect} = require('@playwright/test');
 const ListPage = require('../tests/pages/listPage');
 
 
-test.describe('List Page Content', () => {
+test.describe('List Page Content tests', () => {
 
-    test('Navigate to List page"', async ({ page }) => {
+    test('Navigate to List page"', async ({page}) => {
         const listPage = new ListPage(page);
         await listPage.navigate();
         await listPage.navigatedToPage()
@@ -12,51 +12,49 @@ test.describe('List Page Content', () => {
 
     let listPage
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         listPage = new ListPage(page);
         // Navigate to the list page before each test
         await listPage.navigate();
         await listPage.navigatedToPage()
     });
 
-    test('Verify components existence and visibility', async ({ page }) => {
+    test('Verify components existence and visibility', async ({page}) => {
         // Verify all list components are rendered
         await listPage.verifyListComponents();
     });
 
-    test('Verify filter options', async ({ page }) => {
+    test('Verify filter options', async ({page}) => {
         // Verify filter options under each filter
         await listPage.verifyFilterOptions();
     });
 
-    test('Verify number of list items', async ({ page }) => {
-        //const listPage = new ListPage(page);
-
-        // Step 2: Verify that the list renders 10 items initially
+    test('Verify number of list items', async ({page}) => {
+        //Verify that the list renders 10 items initially
         await listPage.verifyInitialListItemCount(10);
     });
 
 })
 
 
-test.describe('List Item Element Verification', () => {
+test.describe('List Item Element Verification tests', () => {
 
     let listPage
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         listPage = new ListPage(page);
         // Navigate to the list page before each test
         await listPage.navigate();
         await listPage.navigatedToPage()
     });
 
-    test('Verify list items content', async ({ page }) => {
-
-        // Step 2: Verify list items have the expected elements
+    test('Verify list items content', async ({page}) => {
+        // Verify list items have the expected elements
         await listPage.verifyListItemsElements();
     });
 
     test('Verify that titles correspond to the correct action types', async (page) => {
+        // Verify list items have expected titles and types
         await listPage.verifyTitlesAndTypes();
     });
 
@@ -66,18 +64,18 @@ test.describe('List Item Element Verification', () => {
 test.describe('Loading Tests', () => {
     let listPage;
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         listPage = new ListPage(page);
         // Navigate to the list page before each test
         await listPage.navigate();
         await listPage.navigatedToPage()
     });
 
-    // Test: Click "Load More" button until it disappears and verify items are loaded
-    test('should load more items until button disappears', async () => {
+    test('Verify load more button loads items until button disappears', async () => {
         // Initial item count
         let initialCount = await listPage.getItemCount();
-        expect(initialCount).toBeGreaterThan(0); // Ensure there are some initial items
+        // Ensure there are some initial items
+        expect(initialCount).toBeGreaterThan(0);
 
         // Click the "Load More" button until it's no longer visible and count items
         await listPage.clickLoadMoreUntilHidden();
@@ -89,7 +87,10 @@ test.describe('Loading Tests', () => {
         expect(finalCount).toBeGreaterThan(initialCount);
     });
 
-    test('Should refresh the page and check for loading elements', async ({ page }) => {
+    ///
+    // This does rarely work (i am not sure if i am understanding the task correctly)
+    // I've left the code in the test and not in the helper methods so that it can be seen easier what's done
+    test('Verify loader us visible', async ({page}) => {
         // Refresh the page
         await page.reload();
 
@@ -121,33 +122,20 @@ test.describe('Loading Tests', () => {
 });
 
 
-test.describe('Loading Tests', () => {
+test.describe('Filter Tests', () => {
     let listPage;
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         listPage = new ListPage(page);
         // Navigate to the list page before each test
         await listPage.navigate();
         await listPage.navigatedToPage()
-
-        /*// Initial item count
-        let initialCount = await listPage.getItemCount();
-        expect(initialCount).toBeGreaterThan(0); // Ensure there are some initial items
-
-        // Click the "Load More" button until it's no longer visible and count items
-        await listPage.clickLoadMoreUntilHidden();
-
-        // Get new item count after all clicks
-        let finalCount = await listPage.getItemCount();
-
-        // Verify more items have been loaded
-        expect(finalCount).toBeGreaterThan(initialCount);*/
     });
 
 
-    test('should verify list is sorted by date ascending', async () => {
+    test('Verify list is sorted by date ascending', async () => {
+        // Get the sorted days in an array
         const daysArray = await listPage.verifySortingByDate('asc');
-        //const parsedDaysArray = daysArray.map(day => Number(day)); // Ensure all elements are numbers
         console.log(`days array is: ${daysArray}`);
         // Check if the days are sorted in ascending order
         const isSorted = daysArray.every((val, i, arr) => i === 0 || val <= arr[i]); // Allow same day values
@@ -155,9 +143,9 @@ test.describe('Loading Tests', () => {
         if (!isSorted) throw new Error('Days are not sorted in ascending order.');
     });
 
-    test('should verify list is sorted by date descending', async () => {
+    test('Verify list is sorted by date descending', async () => {
+        // Get the sorted days in an array
         const daysArray = await listPage.verifySortingByDate('desc');
-        //const parsedDaysArray = daysArray.map(day => Number(day)); // Ensure all elements are numbers
         console.log(`days array is: ${daysArray}`);
         // Check if the days are sorted in ascending order
         const isSorted = daysArray.every((val, i, arr) => i === 0 || val >= arr[i]); // Allow same day values
@@ -166,91 +154,91 @@ test.describe('Loading Tests', () => {
     });
 
 
-test('should filter by team and verify results for Root', async () => {
-    await listPage.filterByTeam('Root'); // Replace with expected team name
-});
-
-    test('should filter by team and verify results for Normandy', async () => {
-        await listPage.filterByTeam('Normandy'); // Replace with expected team name
+    test('Verify list is filtered by team "Root"', async () => {
+        await listPage.filterByTeam('Root');
     });
 
-    test('should filter by team and verify results for Koprulu', async () => {
-        await listPage.filterByTeam('Koprulu'); // Replace with expected team name
+    test('Verify list is filtered by team "Normandy"', async () => {
+        await listPage.filterByTeam('Normandy');
+    });
+
+    test('Verify list is filtered by team "Koprulu"', async () => {
+        await listPage.filterByTeam('Koprulu');
     });
 
 
-    test('should filter by type "Payment" and verify results', async () => {
-        await listPage.filterByType('Payment'); // Replace with expected type
+    test('Verify list is filtered by type "Payment"', async () => {
+        await listPage.filterByType('Payment');
     });
 
-    test('should filter by type "Mint" and verify results', async () => {
-    await listPage.filterByType('Mint'); // Replace with expected type
-});
-
-    test('should filter by type "Transfer" and verify results', async () => {
-        await listPage.filterByType('Transfer'); // Replace with expected type
+    test('Verify list is filtered by type "Mint"', async () => {
+        await listPage.filterByType('Mint');
     });
 
-    test('should filter by type "Reputation" and verify results', async () => {
-        await listPage.filterByType('Reputation'); // Replace with expected type
+    test('Verify list is filtered by type "Transfer"', async () => {
+        await listPage.filterByType('Transfer');
     });
 
-    test('should filter by type "Permissions" and verify results', async () => {
-        await listPage.filterByType('Permissions'); // Replace with expected type
+    test('Verify list is filtered by type "Reputation"', async () => {
+        await listPage.filterByType('Reputation');
     });
 
-    test('should filter by type "Upgrade" and verify results', async () => {
-        await listPage.filterByType('Upgrade'); // Replace with expected type
+    test('Verify list is filtered by type "Permissions"', async () => {
+        await listPage.filterByType('Permissions');
     });
 
-    test('should filter by type "Details" and verify results', async () => {
-        await listPage.filterByType('Details'); // Replace with expected type
+    test('Verify list is filtered by type "Upgrade"', async () => {
+        await listPage.filterByType('Upgrade');
     });
 
-    test('should filter by type "Address" and verify results', async () => {
-        await listPage.filterByType('Address'); // Replace with expected type
+    test('Verify list is filtered by type "Details"', async () => {
+        await listPage.filterByType('Details');
     });
 
-    test('should filter by type "Teams" and verify results', async () => {
-        await listPage.filterByType('Teams'); // Replace with expected type
+    test('Verify list is filtered by type "Address"', async () => {
+        await listPage.filterByType('Address');
     });
 
-    test('should filter by type "Generic" and verify results', async () => {
-        await listPage.filterByType('Generic'); // Replace with expected type
+    test('Verify list is filtered by type "Teams"', async () => {
+        await listPage.filterByType('Teams');
     });
 
-test('should apply team "Koprulu", type filter "Payment" and verify sorting ascending', async () => {
-    //i've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters
-    await listPage.verifyCombinedFilters('Koprulu', 'Payment', 'asc');
-});
+    test('Verify list is filtered by type "Generic"', async () => {
+        await listPage.filterByType('Generic');
+    });
 
-    test('should apply team "Root", type filter "Reputation" and verify sorting descending', async () => {
-        //i've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters
+    test('Verify list is filtered by team filter "Koprulu", type filter "Payment" and ascending order', async () => {
+        // I've removed the 'asc' option for sorting by date since i have to click each item and this resets the filters (a bug)
+        await listPage.verifyCombinedFilters('Koprulu', 'Payment', 'asc');
+    });
+
+    test('Verify list is filtered by team filter "Root", type filter "Reputation" and descending order', async () => {
+        // I've removed the 'desc' option for sorting by date since i have to click each item and this resets the filters (a bug)
         await listPage.verifyCombinedFilters('Root', 'Reputation', 'desc');
     });
 });
 
 
-
 test.describe('Popover Tests', () => {
     let listPage;
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         listPage = new ListPage(page);
         // Navigate to the list page before each test
         await listPage.navigate();
         await listPage.navigatedToPage()
     });
 
-    test('Popover opens for all items', async () => {
+    test('Verify popover opens for all items', async () => {
         for (let i = 0; i < 10; i++) {
             await listPage.openPopover(i);
+            // I am refreshing the so that the popover disappears and we start over
             await listPage.navigate();
             await listPage.navigatedToPage();
         }
     });
 
-    test('Popover closes for all items', async () => {
+    test('Verify popover closes for all items', async () => {
         for (let i = 0; i < 10; i++) {
             await listPage.closePopover(i);
         }
@@ -262,6 +250,7 @@ test.describe('Popover Tests', () => {
         for (let i = 0; i < numberOfItems; i++) {
             await listPage.openPopover(i);
             await listPage.verifyPopoverUserInfo(i);  // Automatically retrieves user info from the list item
+            // I am refreshing the so that the popover disappears and we start over
             await listPage.navigate();
             await listPage.navigatedToPage();
         }
@@ -272,20 +261,25 @@ test.describe('Popover Tests', () => {
     // The task is: Ensure the user avatar matches the one in the list item, as well as it's the correct size 42x42px
     // But from what i see the listItem avatar and popover avatar are not the same size
     // In this test i am only verifying the popover avatar sizes
+    ///
     test('Verify avatar size for all items', async () => {
         for (let i = 0; i < 10; i++) {
             await listPage.openPopover(i);
             await listPage.verifyAvatarSize(i);
+            // I am refreshing the so that the popover disappears and we start over
             await listPage.navigate();
-            await listPage.navigatedToPage();        }
+            await listPage.navigatedToPage();
+        }
     });
 
     test('Verify user name CSS properties for all items', async () => {
         for (let i = 0; i < 10; i++) {
             await listPage.openPopover(i);
             await listPage.verifyUserNameCss(i);
+            // I am refreshing the so that the popover disappears and we start over
             await listPage.navigate();
-            await listPage.navigatedToPage();        }
+            await listPage.navigatedToPage();
+        }
     });
 
 });

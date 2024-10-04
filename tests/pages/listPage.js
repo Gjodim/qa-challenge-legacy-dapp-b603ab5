@@ -1,5 +1,19 @@
-const { expect } = require('@playwright/test');
-const { checkElementVisibility, verifyDropdownItemsByTitle, countListItems, verifyListItemElements, verifyTitleCorrespondsToType, clickLoadMoreUntilNotPresent, verifyDateSorting, verifyTeamFilter, verifyTypeFilter, selectSortOption, verifyDaysSorting, togglePopover, verifyPopoverUserInfo, verifyAvatarSize, verifyUserNameCss, checkElementInvisibility,} = require('../helpers/helper');
+const {expect} = require('@playwright/test');
+const {
+    checkElementVisibility,
+    verifyDropdownItemsByTitle,
+    countListItems,
+    verifyListItemElements,
+    verifyTitleCorrespondsToType,
+    clickLoadMoreUntilNotPresent,
+    verifyTeamFilter,
+    verifyTypeFilter,
+    togglePopover,
+    verifyPopoverUserInfo,
+    verifyAvatarSize,
+    verifyUserNameCss,
+    checkElementInvisibility,
+} = require('../helpers/helper');
 const transactionMapping = require('../data/transactionMapping');
 
 class ListPage {
@@ -18,14 +32,12 @@ class ListPage {
             status: '.ActionsListItem_tagWrapper__OzXps', // Status (tag wrapper) selector
             date: '.ActionsListItem_day__zIi1u', // Date selector
             team: '.ActionsListItem_domain__OhVrH', // Team (domain) selector
-            dateSelector: '.ActionsListItem_day__zIi1u',
             teamIndicator: '.ActionsListItem_domain__OhVrH',
             typeIndicator: '.ActionsListItem_title__Jp-yM',
             daysAgoIndicator: '.TransactionMeta_items__XdAqG',
             listItemsLi: '.ActionsList_main__sMpx5 li',
             teamSelector: 'ul[class*="SelectListBox_baseTheme__nxgvD"]',
             typeSelector: 'ul[class*="SelectListBox_themeAlt__YLxZd"]',
-            avatarInList: 'div[aria-describedby="TwBVsqWj3a-m0TXl145Yh"]',
             popoverElement: '.InfoPopover_section__E0nuB',
             popoverAvatar: '.InfoPopover_container__xTkDS figure.Avatar_main__PsBO0',
             popoverUserName: '.InfoPopover_userName__pul-M span',
@@ -35,65 +47,61 @@ class ListPage {
         };
     }
 
+    // Navigate to a page
     async navigate(path = '/') {
         await this.page.goto(path); // Relative to baseURL
         console.log(`Navigating to: ${this.page.url()}`);
     }
 
+    // Verify navigated to a page
     async navigatedToPage(expectedPath = '/') {
         const currentUrl = this.page.url();
         expect(currentUrl).toMatch(expectedPath);
         console.log(`Navigated to: ${currentUrl}`);
     }
 
-    // Function to verify list components are rendered
-    // listPage.js
+    // Verify list components are rendered
     async verifyListComponents() {
-        // Check the visibility of the list and other components
         await checkElementVisibility(this.page, this.selectors.list);
         await checkElementVisibility(this.page, this.selectors.loadMoreButton);
 
-        // Use the 'name' attribute to locate the filter dropdown
-        await checkElementVisibility(this.page, this.selectors.teamFilter,null, null);
-        await checkElementVisibility(this.page, this.selectors.sortFilter, null, null, );
-        await checkElementVisibility(this.page, this.selectors.typeFilter, null, null, );
+        await checkElementVisibility(this.page, this.selectors.teamFilter, null, null);
+        await checkElementVisibility(this.page, this.selectors.sortFilter, null, null,);
+        await checkElementVisibility(this.page, this.selectors.typeFilter, null, null,);
 
-        // Check if the list items exist
         const listItems = await this.page.$$(this.selectors.listItems);
         if (!listItems.length) {
             throw new Error('No list items found');
         }
     }
 
-
-    // listPage.js
+    // Verify the different filter options
     async verifyFilterOptions() {
         const expectedTitlesTeamFilter = ['All Teams', 'Root', 'Normandy', 'Koprulu'];
         const expectedTitlesSortFilter = ['Newest', 'Oldest'];
         const expectedTitlesTypeFilter = ['All', 'Payment', 'Mint', 'Transfer', 'Reputation'];
 
 
-        // Verify if all the expected titles exist in the dropdown
         await verifyDropdownItemsByTitle(
             this.page,
-            this.selectors.teamFilter, // Attribute used to find the button
-            expectedTitlesTeamFilter // List of expected items
+            this.selectors.teamFilter,
+            expectedTitlesTeamFilter
         );
 
         await verifyDropdownItemsByTitle(
             this.page,
-            this.selectors.sortFilter, // Attribute used to find the button
-            expectedTitlesSortFilter // List of expected items
+            this.selectors.sortFilter,
+            expectedTitlesSortFilter
         );
 
         await verifyDropdownItemsByTitle(
             this.page,
-            this.selectors.typeFilter, // Attribute used to find the button
-            expectedTitlesTypeFilter // List of expected items
+            this.selectors.typeFilter,
+            expectedTitlesTypeFilter
         );
     }
 
-    // Function to verify the number of list items
+    // Verify the number of list items
     async verifyInitialListItemCount(expectedCount = 10) {
         const itemCount = await countListItems(this.page, this.selectors.list);
 
@@ -104,12 +112,14 @@ class ListPage {
         console.log(`Verified: ${itemCount} items are displayed on the initial load.`);
     }
 
+    // Verify the List items elements
     async verifyListItemsElements() {
-        const { list, avatar, title, status, date, team } = this.selectors;
-        const itemSelectors = { avatar, title, status, date, team };
+        const {list, avatar, title, status, date, team} = this.selectors;
+        const itemSelectors = {avatar, title, status, date, team};
         await verifyListItemElements(this.page, list, itemSelectors);
     }
 
+    // Verify The Titles and Types of the List elements
     async verifyTitlesAndTypes() {
         const listItems = this.page.locator(`${this.selectors.list} li`);
         const itemCount = await listItems.count();
@@ -152,7 +162,7 @@ class ListPage {
         await clickLoadMoreUntilNotPresent(this.page, this.selectors.loadMoreButton, this.selectors.list);
     }
 
-// Function to sort by date and verify sorting order
+// Sort by date and verify sorting order
     async verifySortingByDate(order = 'asc') {
         const sortOption = order === 'asc' ? 'Oldest' : 'Newest';
         await this.page.click(this.selectors.sortFilter);
@@ -160,7 +170,7 @@ class ListPage {
         const option = this.page.locator(`li[title="${sortOption}"]`);
         await option.waitFor();
         await option.hover();
-        await option.click({ force: true });
+        await option.click({force: true});
 
         // Wait for items to load after sorting
         await this.page.waitForTimeout(500);
@@ -179,7 +189,7 @@ class ListPage {
             await this.page.click(this.selectors.sortFilter);
             await option.waitFor();
             await option.hover();
-            await option.click({ force: true });
+            await option.click({force: true});
 
             // Wait for items to load after sorting
             //await this.page.waitForTimeout(1000);
@@ -210,7 +220,7 @@ class ListPage {
         return match ? parseInt(match[1], 10) : 0; // Parse the number of days
     }
 
-    // Function to filter by team and verify results
+    // Filter by team and verify results
     async filterByTeam(expectedTeam) {
         // Ensure the team filter button is visible and click it
         await checkElementVisibility(this.page, this.selectors.teamFilter, null, null);
@@ -228,14 +238,14 @@ class ListPage {
         //console.log('Available teams:', availableTeams);
         await option.waitFor(); // Wait for the option to be visible
         await option.hover(); // Hover over the element to ensure it’s focused
-        await option.click({ force: true }); // Force the click, even if Playwright thinks it's not ready
+        await option.click({force: true}); // Force the click, even if Playwright thinks it's not ready
 
         // Verify the correct team filter has been applied
         await verifyTeamFilter(this.page, this.selectors.teamIndicator, expectedTeam);
     }
 
 
-    // Function to filter by type and verify results using transaction mapping
+    // Filter by type and verify results using transaction mapping
     async filterByType(expectedType) {
         await checkElementVisibility(this.page, this.selectors.typeFilter, null, null);
         await this.page.click(this.selectors.typeFilter);
@@ -246,11 +256,11 @@ class ListPage {
         const option = this.page.locator(`li[title="${expectedType}"]`);
         await option.waitFor(); // Wait for the option to be visible
         await option.hover(); // Hover over the element to ensure it’s focused
-        await option.click({ force: true }); // Force the click, even if Playwright thinks it's not ready
+        await option.click({force: true}); // Force the click, even if Playwright thinks it's not ready
         await verifyTypeFilter(this.page, this.selectors.typeIndicator, expectedType, transactionMapping);
     }
 
-    // Function to verify combination of team, type, and date sorting
+    // Verify combination of team, type, and date sorting
     async verifyCombinedFilters(expectedTeam, expectedType, order = 'asc') {
         await this.filterByTeam(expectedTeam);
         await this.filterByType(expectedType);
@@ -265,7 +275,7 @@ class ListPage {
         await togglePopover(this.page, this.selectors.popoverElement);
     }
 
-    // Close the popover
+    // Close the popover for an item
     async closePopover(index) {
         const listItem = this.page.locator(this.selectors.listItems).nth(index);
         const avatar = listItem.locator(this.selectors.avatar);

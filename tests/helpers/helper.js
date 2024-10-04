@@ -1,6 +1,4 @@
-// helper.js
-const transactionMapping = require('../data/transactionMapping');
-
+// Check Element visibility (multiple selectors)
 export async function checkElementVisibility(page, selector, text = null, attribute = null, timeout = 5000) {
     let element;
 
@@ -30,6 +28,7 @@ export async function checkElementVisibility(page, selector, text = null, attrib
     return true;
 }
 
+// Check element invisibility / not shown (multiple selectors)
 export async function checkElementInvisibility(page, selector, text = null, attribute = null, timeout = 5000) {
     let element;
 
@@ -42,7 +41,7 @@ export async function checkElementInvisibility(page, selector, text = null, attr
     }
 
     // Wait for the element to be hidden within the timeout
-    await element.waitFor({ state: 'hidden', timeout });
+    await element.waitFor({state: 'hidden', timeout});
 
     const isVisible = await element.isVisible();
     if (isVisible) {
@@ -53,17 +52,16 @@ export async function checkElementInvisibility(page, selector, text = null, attr
 }
 
 
-
-// helper.js
+// Verify dropdown item by title
 export async function verifyDropdownItemsByTitle(page, attribute, expectedTitles) {
-    // Step 1: Locate the dropdown trigger button using an attribute like name
+    // Locate the dropdown trigger button using an attribute like name
     const dropdownTrigger = page.locator(`${attribute}`);
 
-    // Step 2: Click the button to trigger the dropdown list
-    await dropdownTrigger.waitFor({ state: 'visible' });
+    // Click the button to trigger the dropdown list
+    await dropdownTrigger.waitFor({state: 'visible'});
     await dropdownTrigger.click();
 
-    // Step 4: Check for each expected title in the dropdown list
+    // Check for each expected title in the dropdown list
     for (const title of expectedTitles) {
         const itemLocator = page.locator(`li[title="${title}"]`);
         const isVisible = await itemLocator.isVisible();
@@ -78,54 +76,57 @@ export async function verifyDropdownItemsByTitle(page, attribute, expectedTitles
     console.log(`All expected items found: ${expectedTitles}`);
 }
 
+// Count the items from a list
 export async function countListItems(page, selector) {
-    // Step 1: Wait for the list to be visible
-    await page.waitForSelector(selector, { state: 'visible' });
+    // Wait for the list to be visible
+    await page.waitForSelector(selector, {state: 'visible'});
 
-    // Step 2: Count the number of `li` elements inside the list
+    // Count the number of `li` elements inside the list
     const itemCount = await page.locator(`${selector} li`).count();
 
     return itemCount;
 }
 
+// Verify different list item elements
 export async function verifyListItemElements(page, listSelector, itemSelectors) {
-    // Step 1: Wait for the list to be visible
-    await page.waitForSelector(listSelector, { state: 'visible' });
+    // Wait for the list to be visible
+    await page.waitForSelector(listSelector, {state: 'visible'});
 
-    // Step 2: Loop through each list item and verify the required elements
+    // Obtain the 'li' items count
     const listItems = page.locator(`${listSelector} li`);
     const itemCount = await listItems.count();
 
+    // Loop through each list item and verify the required elements
     for (let i = 0; i < itemCount; i++) {
         const listItem = listItems.nth(i);
 
         // Avatar
-        await listItem.locator(itemSelectors.avatar).waitFor({ state: 'visible' });
+        await listItem.locator(itemSelectors.avatar).waitFor({state: 'visible'});
 
         // Title
-        await listItem.locator(itemSelectors.title).waitFor({ state: 'visible' });
+        await listItem.locator(itemSelectors.title).waitFor({state: 'visible'});
 
         // Status
-        await listItem.locator(itemSelectors.status).waitFor({ state: 'visible' });
+        await listItem.locator(itemSelectors.status).waitFor({state: 'visible'});
 
         // Date
-        await listItem.locator(itemSelectors.date).waitFor({ state: 'visible' });
+        await listItem.locator(itemSelectors.date).waitFor({state: 'visible'});
 
         // Team
-        await listItem.locator(itemSelectors.team).waitFor({ state: 'visible' });
+        await listItem.locator(itemSelectors.team).waitFor({state: 'visible'});
     }
 
     console.log(`Verified: All elements (avatar, title, status, date, team) are present in each of the ${itemCount} list items.`);
 }
 
-// Function to check if the title corresponds to the correct type
+// Check if the title corresponds to the correct type (using the provided transaction mappings)
 export async function verifyTitleCorrespondsToType(actionType, cleanedTitle, transactionMapping) {
     const normalizedActionType = actionType.toUpperCase(); // Normalize to uppercase
 
     if (transactionMapping[normalizedActionType]) {
         const expectedFormat = transactionMapping[normalizedActionType];
 
-        // Simple validation logic (this can be customized as needed)
+        // Validation logic
         const regex = new RegExp(expectedFormat.replace(/<.*?>/g, '.*'), 'i');
         if (!regex.test(cleanedTitle)) {
             throw new Error(`Title "${cleanedTitle}" does not match expected format for action type "${normalizedActionType}". Expected: ${expectedFormat}`);
@@ -138,7 +139,7 @@ export async function verifyTitleCorrespondsToType(actionType, cleanedTitle, tra
     }
 }
 
-// Helper to click "Load More" button until it's no longer visible and count items after each click
+// Click "Load More" button until it's no longer visible and count items after each click
 export async function clickLoadMoreUntilNotPresent(page, buttonSelector, listSelector) {
     let previousItemCount = await page.locator(`${listSelector} li`).count();
 
@@ -149,7 +150,7 @@ export async function clickLoadMoreUntilNotPresent(page, buttonSelector, listSel
         // Click the "Load More" button
         await page.locator(buttonSelector).click();
 
-        // Wait for more items to load (you can adjust the timeout if necessary)
+        // Wait for more items to load
         //await page.waitForTimeout(2000); // This is to give time for new items to load
 
         // Get the new item count
@@ -172,6 +173,9 @@ export async function clickLoadMoreUntilNotPresent(page, buttonSelector, listSel
     }
 }
 
+/*
+
+// Select an option for sorting
 export async function selectSortOption(page, sortSelector, optionText) {
     // Click the sort filter button
     await page.click(sortSelector);
@@ -183,9 +187,10 @@ export async function selectSortOption(page, sortSelector, optionText) {
     await optionLocator.click({ force: true }); // Force the click, even if Playwright thinks it's not ready
     //await page.click(optionLocator);
 }
+*/
 
 
-// Helper to sort and verify date ordering (ascending/descending)
+// Sort and verify date ordering (ascending/descending)
 export async function verifyDaysSorting(page, daysSelector, order = 'asc') {
     const daysText = await page.$$eval(daysSelector, elements => {
         return elements.map(el => {
@@ -205,6 +210,7 @@ export async function verifyDaysSorting(page, daysSelector, order = 'asc') {
         return date;
     });
 
+    // Return result for the asc or desc sorted dates
     const isSorted = order === 'asc'
         ? dates.every((date, i) => i === 0 || date >= dates[i - 1])
         : dates.every((date, i) => i === 0 || date <= dates[i - 1]);
@@ -216,14 +222,17 @@ export async function verifyDaysSorting(page, daysSelector, order = 'asc') {
     return true;
 }
 
+/*
 
+// Parsing days retrieved from each item
 export function parseDaysAgo(daysAgoText) {
     const match = daysAgoText.match(/(\d+) days ago/);
     return match ? parseInt(match[1], 10) : 0; // Parse the number of days
 }
+*/
 
 
-// Helper to filter by team and check results
+// Verify filter by team and check results
 export async function verifyTeamFilter(page, teamSelector, expectedTeam) {
     const teams = await page.$$eval(teamSelector, elements => elements.map(el => el.textContent.trim()));
 
@@ -236,7 +245,7 @@ export async function verifyTeamFilter(page, teamSelector, expectedTeam) {
     return true;
 }
 
-// Helper to filter by type and check results using transaction mapping
+// Verify filter by type and check results using transaction mapping
 export async function verifyTypeFilter(page, typeSelector, expectedType, transactionMapping) {
     // Fetch all list items
     const items = await page.$$(typeSelector);
@@ -257,13 +266,13 @@ export async function verifyTypeFilter(page, typeSelector, expectedType, transac
     }
 }
 
-// Helper to check visibility and interaction of popover
+// Check visibility and interaction of popover
 export async function togglePopover(page, selector) {
     await checkElementVisibility(page, selector, null, null);
     await page.click(selector);  // Toggle the popover
 }
 
-// Helper to verify popover user information
+// Verify popover user information
 export async function verifyPopoverUserInfo(page, popoverElementSelector, popoverAvatarSelector, userNameSelector, addressSelector, expectedAvatarTitle, expectedUserName, expectedAddress) {
     // Check visibility of popover avatar
     const popoverElement = await checkElementVisibility(page, popoverElementSelector, null, null);
@@ -294,10 +303,7 @@ export async function verifyPopoverUserInfo(page, popoverElementSelector, popove
     console.log(`Verified popover info: Avatar ${popoverAvatarTitle}, User ${userName}, Address ${address}`);
 }
 
-
-
-
-// Helper to verify avatar size in popover
+// Verify avatar size in popover
 export async function verifyAvatarSize(page, avatarSelector, expectedWidth, expectedHeight) {
     // Evaluate the size of the avatar by the provided selector
     const avatarSize = await page.evaluate((selector) => {
@@ -305,7 +311,7 @@ export async function verifyAvatarSize(page, avatarSelector, expectedWidth, expe
         if (!element) {
             throw new Error(`Avatar element with selector ${selector} not found`);
         }
-        return { width: element.clientWidth, height: element.clientHeight };
+        return {width: element.clientWidth, height: element.clientHeight};
     }, avatarSelector);
 
     // Check if the avatar's size matches the expected dimensions
@@ -318,7 +324,7 @@ export async function verifyAvatarSize(page, avatarSelector, expectedWidth, expe
 }
 
 
-// Helper to verify CSS properties of user name
+// Verify CSS properties of user name
 export async function verifyUserNameCss(userNameLocator) {
     // Evaluate the font weight of the user name
     const fontWeight = await userNameLocator.evaluate((element) => {
